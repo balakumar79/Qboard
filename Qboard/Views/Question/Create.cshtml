@@ -1,0 +1,158 @@
+﻿@model Qboard.Models.QuestionViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-uppercase">Create new question</h2>
+<hr />
+
+@using (Html.BeginForm())
+{
+    @*@Html.AntiForgeryToken()*@
+
+    <div class="form-horizontal">
+       
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Created, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @DateTime.Now
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Select Exam", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <select id="ddlExams" name="Exams" class="form-control">
+                    @foreach (var item in Model.Exams)
+                    {
+                        <option value="@item.Id">@item.ExamName</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Question, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @*@Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })*@
+                @Html.TextAreaFor(model => model.Question, new { cols = 55, @rows = 3 })
+                @Html.ValidationMessageFor(m => m.Question, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2">Answers</label>
+            <div class="col-md-7 form-inline" id="pnlAnswer">
+                <table class="table-bordered" width="100%">
+                    <thead>
+                        <tr class="text-center text-capitalize">
+                            <th>Answer</th>
+                            <th>Mark as Correct Ans.</th>
+                            <th>Add</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input name="Answer" class="form-control txtAnswer" style="width:100%" /></td>
+                    <td class="text-center"><input type="checkbox" class="iscorrect checkbox" /></td>
+                    <td><button type="button" class="btn btn-link" ><i class="glyphicon glyphicon-plus-sign text-primary btnAddAnswer"></i> </button></td>
+                    </tr>
+                            </tbody>
+
+                </table>
+                
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Skills, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <select id="ddlSkills" class="txtSkills form-control" name="Skills">
+                    @foreach (var item in Model.Skills)
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2">Contemparay Level</label>
+            <div class="col-md-10">
+                <select name="ContempararyLevels" class="form-control">
+                    @foreach (var item in Model.ContempararyLevels)
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                </select>
+                @Html.ValidationMessageFor(model => model.ContempararyLevels, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @*@Html.HiddenFor(model => model.VoteCount)
+            @Html.HiddenFor(model => model.AnswerCount)
+            @Html.HiddenFor(model => model.ViewrCount)*@
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" onclick="savequestion();" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<script>
+    document.addEventListener('readystatechange', doc => {
+        if (doc.target.readyState === 'complete') {
+            $('.btnAddAnswer').click(function (e) {
+                $('#pnlAnswer tbody').last().append($('#pnlAnswer tbody tr').last().clone().find('input').val('').prop('checked', false).end());
+            })
+        }
+    })
+    function savequestion() {
+        var Answers = [];
+        var examid = $('[name=Exams]').val();
+        $('#pnlAnswer .txtAnswer').each(function (i, el) {
+            Answers.push({ Name: el.value, IsCorrect: $('.iscorrect').is(':checked') });
+        })
+        var question = {
+            Question: $('[name=Question]').val(),
+            Answers,
+            ExamId: examid,
+            Skills: [{ Id: $('[name=Skills]').val(), Name: $('[name=Skills] :selected').text() }],
+            ContempararyLevels: [{
+                Id: $('[name=ContempararyLevels]').val(), Name: $('[name=ContempararyLevels] :selected').text()
+            }]
+        }
+        insertdata('/Question/Create', { question }).done(function (res) {
+            if (res) {
+                alert('Your form submitted successfully')
+                window.location.href = "/Question/Index";
+            }
+        });
+        console.log(question)
+    }
+</script>
+<style>
+    #pnlAnswer tbody tr input {
+        margin: 6px;
+        border-width: 1px 10px 1px 10px;
+        border-radius: 22px;
+    }
+    #pnlAnswer thead tr{
+        background-color:#ff6a00;
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        text-align-last:center;
+            
+    }
+</style>

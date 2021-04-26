@@ -1,0 +1,35 @@
+﻿@model List<Qboard.Models.QuestionViewModel>
+
+@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="jumbotron">
+    <h1>Learn, Share, Build!</h1>
+    <p class="lead">Each month, over 50 million developers come to Stack Overwlow to learn, share their knowledge, and build their careers.</p>
+    Join the world's largest developer community.
+    <a href="/question">Questions</a>
+</div>
+
+<table class="table">
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <span class="numberbg"> QAID </span>  @Html.DisplayNameFor(model => item.Id)
+            </td>
+            <td>
+                <a href="/exam/details?id=@item.ExamId">@item.Exams.FirstOrDefault().ExamName</a>
+                <br />
+                @*@Html.DisplayFor(modelItem => item.CategoryId) change to category name*@
+                @*@Html.Action("GetCategory", "QuestionController",  item.Id ))*@
+            </td>
+           
+            <td>
+                on @Html.DisplayFor(modelItem => item.Created)
+            </td>
+        </tr>
+    }
+
+</table>
